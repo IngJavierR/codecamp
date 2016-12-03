@@ -8,8 +8,10 @@
   "license": "",
   "main": "app.js",
   "dependencies": {
+    "coffee-script": "^1.11.1",
     "hapi": "^10.0.0",
-    "swagger-hapi": "^0.1.0"
+    "swagger-hapi": "^0.1.0",
+    "twitter": "^1.5.0"
   },
   "devDependencies": {
     "should": "^7.1.0",

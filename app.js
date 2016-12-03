@@ -3,6 +3,7 @@
 var SwaggerHapi = require('swagger-hapi');
 var Hapi = require('hapi');
 var app = new Hapi.Server();
+require('coffee-script/register');
 
 module.exports = app; // for testing
 

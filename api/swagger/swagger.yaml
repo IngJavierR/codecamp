@@ -89,7 +89,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   /commonfriends/{user1}/{user2}:
-    x-swagger-router-controller: twiter
+    x-swagger-router-controller: twitter
     get:
       description: get the common friends between two users
       operationId: commonfriends
