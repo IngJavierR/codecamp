@@ -66,8 +66,28 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-          
-          
+  /friends:
+    x-swagger-router-controller: twitter
+    get:
+      description: Returns an array of friends ids
+      operationId: friends
+      parameters:
+        - name: user
+          in: query
+          description: The screename or userid
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ListResponse"
+          # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 # complex objects have schema definitions
 definitions:
   HelloWorldResponse:
