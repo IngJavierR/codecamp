@@ -88,8 +88,50 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /commonfriends/{user1}/{user2}:
+    x-swagger-router-controller: twiter
+    get:
+      description: get the common friends between two users
+      operationId: commonfriends
+      parameters:
+        - name: user1
+          in: path
+          description: First userid or screen_name for comparisson
+          required: true
+          type: string
+        - name: user2
+          in: path
+          description: Second userid or screen_name for comparisson
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/CommonFriendsResponse"
+          # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 # complex objects have schema definitions
 definitions:
+  CommonFriendsResponse:
+    required:
+      - user1followers
+      - user2followers
+      - commonfollowers
+    properties:
+      user1followers:
+        type: number
+        format: integer
+      user2followers:
+        type: number
+        format: integer
+      commonfollowers:
+        type: number
+        format: integer
   HelloWorldResponse:
     required:
       - message
