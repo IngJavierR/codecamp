@@ -2,8 +2,20 @@
 
 var SwaggerHapi = require('swagger-hapi');
 var Hapi = require('hapi');
-var app = new Hapi.Server();
 require('coffee-script/register');
+var Path = require('path');
+const Inert = require('inert')
+
+var app = new Hapi.Server({
+    connections: {
+        routes: {
+            files: {
+                relativeTo: Path.join(__dirname, 'public')
+            }
+        }
+    }
+});
+
 
 module.exports = app; // for testing
 
@@ -16,6 +28,18 @@ SwaggerHapi.create(config, function(err, swaggerHapi) {
 
   var port = process.env.PORT || 10010;
   app.connection({ port: port , host: "0.0.0.0", routes: {cors : true} });
+  app.register(Inert, () => {});
+  app.route({
+      method: 'GET',
+      path: '/{param*}',
+      handler: {
+          directory: {
+              path: '.',
+              redirectToSlash: true,
+              index: true
+          }
+      }
+  });
   app.address = function() {
     return { port: port };
   };

@@ -3,6 +3,10 @@ yaml = require 'js-yaml'
 fs = require 'fs'
 crypto = require 'crypto'
 os = require 'os'
+async = require 'async'
+dot = require 'graphlib-dot'
+Viz = require 'viz.js'
+
 config = yaml.safeLoad fs.readFileSync "#{__dirname}/../../config/runtime.yaml", 'utf8'
 
 Twitter = require 'twitter'
@@ -34,7 +38,7 @@ traeme = (urltwitter, params, cb)->
 					cb data.error, data.tweets, data.response
 
 followers = (req,res)->
-	traeme 'followers/ids.json', {stringify_ids: req.swagger.params.user.value}, (error, jsres, response)->
+	traeme 'followers/ids.json', {screen_name: req.swagger.params.user.value}, (error, jsres, response)->
 		if error?
 			console.log "Error de Twitter", error
 		else
@@ -46,7 +50,7 @@ followers = (req,res)->
 			
 		
 friends = (req,res)->
-	traeme 'friends/ids.json', {stringify_ids: req.swagger.params.user.value}, (error, jsres, response)->
+	traeme 'friends/ids.json', {screen_name: req.swagger.params.user.value}, (error, jsres, response)->
 		if error?
 			console.log "Error de Twitter", error
 		else
@@ -55,14 +59,63 @@ friends = (req,res)->
 			else
 				# no tiene followers ??
 				res.json []
+friendsbyuserid = (userid,callback)->
+	traeme 'friends/ids.json', {user_id: userid}, (error, jsres, response)->
+		if error?
+			console.log "Error de Twitter", error
+		else
+			if jsres?.ids?
+				callback jsres.ids
+			else
+				# no tiene followers ??
+				callback []
 commonfriends = (req,res)->
-	res.json {
-		user1followers: 0
-		user2followers: 0
-		commonfollowers:0
-	}
+	userids = [req.swagger.params.user1.value,req.swagger.params.user2.value]
+	console.log "commonfriends of", userids
+	async.mapSeries userids,(item,callback)->
+		if item?
+			friends {swagger :{params : {user : {value:item}}}}, {
+				json: (data)->
+					console.log "#{item}->",data.length
+					callback null,data
+			}
+		else
+			console.log "item invalido, #{item}"
+			callback null,[]
+	,(err,results)->
+		comunes = results[0].filter (e)->
+			return results[1].indexOf(e) isnt -1
+		retval = {
+			user1followers: results[0]
+			user2followers: results[1]
+			commonfollowers: comunes
+		}
+		res.json retval
+
+CommonFriendsGraph = (req,res)->
+	commonfriends req, {
+			json: (data)->
+				console.log "Buscando los friends de las coincidencias ... "
+				data.commonfollowers = data.commonfollowers[0..5]
+				async.mapSeries data.commonfollowers, (item,callback)->
+					friendsbyuserid item, (data)->
+						console.log "#{item}->",data.length
+						callback null,data
+				,(err,results)->
+					retval = ""
+					retval += "#{userid};" for userid, ix in data.commonfollowers
+					for userid1, ix1 in data.commonfollowers
+						for userid2, ix2 in data.commonfollowers
+							if userid1 isnt userid2 and results[ix2].indexOf (userid) isnt -1
+								retval += "#{userid1} -> #{userid2}\n"
+					digraph = dot.read("digraph { #{retval} }")
+					ascii = dot.write digraph
+					svg = Viz ascii,{format:"svg", engine:"dot", scale:2}
+					res.json {message:svg}
+		}
 module.exports = {
 	followers: followers
 	friends: friends
 	commonfriends: commonfriends
+	CommonFriendsGraph : CommonFriendsGraph
 }

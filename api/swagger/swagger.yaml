@@ -17,6 +17,7 @@ consumes:
 # format of the responses to the client (Accepts)
 produces:
   - application/json
+  - image/svg
 paths:
   /hello:
     # binds a127 app logic to a route
@@ -95,11 +96,13 @@ paths:
       operationId: commonfriends
       parameters:
         - name: user1
+          default: itzareyesMX
           in: path
           description: First userid or screen_name for comparisson
           required: true
           type: string
         - name: user2
+          default: d5lment
           in: path
           description: Second userid or screen_name for comparisson
           required: true
@@ -115,8 +118,41 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /commonfriendsGraph/{user1}/{user2}:
+    x-swagger-router-controller: twitter
+    get:
+      description: get the common friends between two users
+      operationId: CommonFriendsGraph
+      parameters:
+        - name: user1
+          default: itzareyesMX
+          in: path
+          description: First userid or screen_name for comparisson
+          required: true
+          type: string
+        - name: user2
+          default: d5lment
+          in: path
+          description: Second userid or screen_name for comparisson
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/CommonFriendsGraph"
+          # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 # complex objects have schema definitions
 definitions:
+  CommonFriendsGraph:
+    properties:
+      message:
+        format: string
   CommonFriendsResponse:
     required:
       - user1followers
@@ -124,13 +160,19 @@ definitions:
       - commonfollowers
     properties:
       user1followers:
-        type: number
+        type: array
+        items:
+          type: number
         format: integer
       user2followers:
-        type: number
+        type: array
+        items:
+          type: number
         format: integer
       commonfollowers:
-        type: number
+        type: array
+        items:
+          type: number
         format: integer
   HelloWorldResponse:
     required:
