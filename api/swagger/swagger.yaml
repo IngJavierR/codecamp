@@ -44,6 +44,30 @@ paths:
             $ref: "#/definitions/ErrorResponse"
   /swagger:
     x-swagger-pipe: swagger_raw
+  /followers:
+    x-swagger-router-controller: twitter
+    get:
+      description: Returns an array of followers ids
+      operationId: followers
+      parameters:
+        - name: user
+          in: query
+          description: The screename or userid
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ListResponse"
+          # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+          
+          
 # complex objects have schema definitions
 definitions:
   HelloWorldResponse:
@@ -58,3 +82,11 @@ definitions:
     properties:
       message:
         type: string
+  ListResponse:
+    required:
+      - users
+    properties:
+      users:
+        type: array
+        items:
+          type: string
