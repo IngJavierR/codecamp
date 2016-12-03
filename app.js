@@ -15,7 +15,6 @@ SwaggerHapi.create(config, function(err, swaggerHapi) {
 
   var port = process.env.PORT || 10010;
   app.connection({ port: port , host: "0.0.0.0", routes: {cors : true} });
-  };
   app.address = function() {
     return { port: port };
   };
