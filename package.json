@@ -10,6 +10,7 @@
   "dependencies": {
     "coffee-script": "^1.11.1",
     "hapi": "^10.0.0",
+    "js-yaml": "^3.7.0",
     "swagger-hapi": "^0.1.0",
     "twitter": "^1.5.0"
   },
